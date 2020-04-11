@@ -19,6 +19,8 @@ protected:
 private:
 	bool readSettings(const QString &filePath);
 
+	QSettings *settings = nullptr;
+
 	QString rootDir;
 
 	DBManager *dbManager;
