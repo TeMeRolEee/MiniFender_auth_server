@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtCore/QThread>
+#include <QtCore/QSettings>
 
 #include "dbmanager.h"
 #include "clihandler.h"

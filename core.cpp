@@ -1,4 +1,3 @@
-#include <QtCore/QSettings>
 #include "core.h"
 
 
