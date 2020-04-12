@@ -14,13 +14,13 @@ public:
 	Core(const QString &rootDir);
 	~Core() override;
 
+	bool init(const QString &settingsFilePath);
+
 protected:
 	void run() override;
 
 private:
-	bool readSettings(const QString &filePath);
-
-	bool checkSerialNumber(const QCryptographicHash &hash);
+	bool readSettings();
 
 	QSettings *settings = nullptr;
 
@@ -31,9 +31,12 @@ private:
 	AuthServer *authServer;
 
 private slots:
+	void stopApp_slot();
 
+	void handleGenerating_slot(const QString &data);
 signals:
 
+	void startServer_signal(int port);
+
+	void generateSerial_signal(const QString &data);
 };
-
-

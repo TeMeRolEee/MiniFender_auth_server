@@ -9,6 +9,9 @@
 class AuthServer : public QThread {
 Q_OBJECT
 
+public:
+	~AuthServer() override;
+
 private:
 	QLocalServer *server = nullptr;
 
@@ -19,18 +22,17 @@ public slots:
 
 	void listening_slot();
 
+	void stopListening_slot();
+
+	void generateSerialNumber_slot(const QString &data);
+
 signals:
+	void generateSerialNumber_signal(const QString &data);
+
 	void initServer_signal(const int port);
 
 	void initSuccess_signal(bool isGood);
 
-	void startListening_signal();
-
 	void stopListening_signal();
-
-	void newRequest_signal(const QJsonObject &request);
-
-
-
 };
 

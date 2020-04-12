@@ -17,9 +17,11 @@ public slots:
 
 signals:
 
-	void newTask_signal(const QString &filePath);
+	void generateSerial_signal(const QString &serial);
 
 	void stopCli_signal();
+
+	void stopApp_signal();
 };
 
 

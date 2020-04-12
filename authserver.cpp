@@ -25,6 +25,10 @@ void AuthServer::init_slot(const int port) {
 	}
 
 	connect(server, &QLocalServer::newConnection, this, &AuthServer::listening_slot);
+	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot);
+	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot);
+	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot);
+	connect(this, &AuthServer::finished, this, &AuthServer::deleteLater);
 }
 
 void AuthServer::listening_slot() {
@@ -56,4 +60,22 @@ bool AuthServer::checkSerialNumber(const QString &hash) {
 	}
 
 	return false;
+}
+
+void AuthServer::generateSerialNumber_slot(const QString &data) {
+	QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
+	QString serial = QString("acceptable_serial_") + data;
+	tempHash.addData(serial.toUtf8());
+	qInfo() << "Serial generated:" << QString(tempHash.result().toHex()).toUtf8();
+}
+
+void AuthServer::stopListening_slot() {
+	server->close();
+}
+
+AuthServer::~AuthServer() {
+	if (server->isListening()) {
+		emit stopListening_signal();
+	}
+	delete server;
 }

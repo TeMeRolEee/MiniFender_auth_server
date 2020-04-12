@@ -8,7 +8,10 @@ void CliHandler::run() {
 	while (!stopCli) {
 		//qDebug() << "Waiting for input...";
 		std::getline(std::cin, input);
-		emit newTask_signal(QString::fromStdString(input));
+		if (input == "generate") {
+			emit generateSerial_signal(QString::fromStdString(input));
+		}
+
 	}
 	QThread::run();
 }
