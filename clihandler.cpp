@@ -11,8 +11,6 @@ void CliHandler::run() {
 		QString temp = QString::fromStdString(input);
 		if (temp.contains("generate")) {
 			temp.remove(0, 9);
-			qInfo() << "Generating serial... from" << temp;
-			qInfo() << __FUNCTION__ << __LINE__ << __FILE__ << temp.toInt();
 			emit generateSerial_signal(QString(temp.toInt()));
 		}
 

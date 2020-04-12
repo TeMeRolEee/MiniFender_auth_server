@@ -73,8 +73,6 @@ bool AuthServer::checkSerialNumber(const QString &hash) {
 }
 
 void AuthServer::generateSerialNumber_slot(const QString &data) {
-	qInfo() << __FUNCTION__ << __LINE__ << __FILE__;
-	qInfo() << "Generating serial...";
 	QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 	QString serial = QString("acceptable_serial_") + data;
 	tempHash.addData(serial.toUtf8());
