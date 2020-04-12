@@ -1,4 +1,6 @@
 #include <QtCore/QDataStream>
+#include <QtNetwork/QLocalSocket>
+
 #include "authserver.h"
 
 void AuthServer::init_slot(const int port) {
@@ -30,16 +32,25 @@ void AuthServer::listening_slot() {
 	QDataStream out(&block, QIODevice::WriteOnly);
 	out.setVersion(QDataStream::Qt_5_12);
 	QLocalSocket *connection = server->nextPendingConnection();
+	connect(connection, &QLocalSocket::disconnected, connection, &QLocalSocket::deleteLater);
 
+	if (checkSerialNumber(QString(connection->readAll()))) {
+		connection->write("OK");
+	} else {
+		connection->write("NOT OK");
+	}
 
+	connection->flush();
+	connection->waitForBytesWritten(3000);
+	connection->close();
 }
 
-bool AuthServer::checkSerialNumber(const QCryptographicHash &hash) {
+bool AuthServer::checkSerialNumber(const QString &hash) {
 	for (int i = 0; i < 102400; ++i) {
 		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 		QString serial = QString("acceptable_serial_") + i;
 		tempHash.addData(serial.toUtf8());
-		if (tempHash.result() == hash.result()) {
+		if (tempHash.result().toHex() == hash) {
 			return true;
 		}
 	}

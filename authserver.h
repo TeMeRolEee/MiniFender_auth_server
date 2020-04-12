@@ -12,14 +12,12 @@ Q_OBJECT
 private:
 	QLocalServer *server = nullptr;
 
-	bool checkSerialNumber(const QCryptographicHash &hash);
+	bool checkSerialNumber(const QString &hash);
 
 public slots:
 	void init_slot(const int port);
 
 	void listening_slot();
-
-	void sendResponse_slot(const QJsonObject &response);
 
 signals:
 	void initServer_signal(const int port);
