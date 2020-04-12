@@ -4,12 +4,15 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QNetworkSession>
 #include <QtNetwork/QLocalServer>
+#include <QtCore/QCryptographicHash>
 
 class AuthServer : public QThread {
 Q_OBJECT
 
 private:
 	QLocalServer *server = nullptr;
+
+	bool checkSerialNumber(const QCryptographicHash &hash);
 
 public slots:
 	void init_slot(const int port);

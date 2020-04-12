@@ -31,4 +31,18 @@ void AuthServer::listening_slot() {
 	out.setVersion(QDataStream::Qt_5_12);
 	QLocalSocket *connection = server->nextPendingConnection();
 
+
+}
+
+bool AuthServer::checkSerialNumber(const QCryptographicHash &hash) {
+	for (int i = 0; i < 102400; ++i) {
+		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
+		QString serial = QString("acceptable_serial_") + i;
+		tempHash.addData(serial.toUtf8());
+		if (tempHash.result() == hash.result()) {
+			return true;
+		}
+	}
+
+	return false;
 }

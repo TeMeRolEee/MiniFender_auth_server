@@ -2,8 +2,8 @@
 
 #include <QtCore/QThread>
 #include <QtCore/QSettings>
+#include <QtCore/QCryptographicHash>
 
-#include "dbmanager.h"
 #include "clihandler.h"
 #include "authserver.h"
 
@@ -20,11 +20,11 @@ protected:
 private:
 	bool readSettings(const QString &filePath);
 
+	bool checkSerialNumber(const QCryptographicHash &hash);
+
 	QSettings *settings = nullptr;
 
 	QString rootDir;
-
-	DBManager *dbManager;
 
 	CliHandler *cliHandler;
 

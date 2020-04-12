@@ -22,10 +22,5 @@ bool Core::readSettings(const QString &filePath) {
 	}
 
 	settings->beginGroup("Port");
-	if (!settings->childKeys().contains("port") && !(settings->value("port").toInt() < 65535 && settings->value("port").toInt() > 0)) {
-		return false;
-	}
-
-	settings->beginGroup("Database");
-	return !(!settings->childKeys().contains("file_path") && (settings->value("file_path").toString().isEmpty()));
+	return (settings->childKeys().contains("port") && (settings->value("port").toInt() < 65535 && settings->value("port").toInt() > 0));
 }
