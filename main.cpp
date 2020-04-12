@@ -29,5 +29,7 @@ int main(int argc, char *argv[]) {
 		QCoreApplication::exit(1);
 	}
 
+	qDebug() << core->isRunning();
+
 	return QCoreApplication::exec();
 }

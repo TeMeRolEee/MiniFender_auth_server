@@ -30,10 +30,7 @@ private:
 private slots:
 	void stopApp_slot();
 
-
 signals:
 
-	void startServer_signal(int port);
-
-	void generateSerial_signal(const QString &data);
+	void startServer_signal(int port = 8088);
 };

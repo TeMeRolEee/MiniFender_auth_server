@@ -3,9 +3,20 @@
 
 #include "authserver.h"
 
-void AuthServer::init_slot(const int port) {
-	server = new QLocalServer(this);
-	if (!server->listen("auth")) {
+AuthServer::AuthServer() {
+	server = new QLocalServer();
+}
+
+AuthServer::~AuthServer() {
+	qDebug() << (server == nullptr);
+	if (server->isListening()) {
+		emit stopListening_signal();
+	}
+	delete server;
+}
+
+void AuthServer:: init_slot(const int port) {
+	if (!server->isListening() && !server->listen("auth")) {
 		qCritical() << "Unable to start server";
 		emit initSuccess_signal(false);
 		return;
@@ -25,7 +36,7 @@ void AuthServer::init_slot(const int port) {
 	}
 
 	connect(server, &QLocalServer::newConnection, this, &AuthServer::listening_slot, Qt::QueuedConnection);
-	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::QueuedConnection);
+	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::UniqueConnection);
 	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
 }
@@ -62,21 +73,14 @@ bool AuthServer::checkSerialNumber(const QString &hash) {
 }
 
 void AuthServer::generateSerialNumber_slot(const QString &data) {
+	qInfo() << __FUNCTION__ << __LINE__ << __FILE__;
+	qInfo() << "Generating serial...";
 	QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 	QString serial = QString("acceptable_serial_") + data;
 	tempHash.addData(serial.toUtf8());
-	qInfo() << "Serial generated:" << QString(tempHash.result().toHex()).toUtf8();
+	qInfo() << "Serial generated:" << endl << QString(tempHash.result().toHex()).toUtf8();
 }
 
 void AuthServer::stopListening_slot() {
 	server->close();
-}
-
-AuthServer::~AuthServer() {
-	if (server != nullptr) {
-		if (server->isListening()) {
-			emit stopListening_signal();
-		}
-		delete server;
-	}
 }

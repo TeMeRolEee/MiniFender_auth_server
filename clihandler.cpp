@@ -1,20 +1,22 @@
 #include "clihandler.h"
 
 #include <iostream>
-
+#include <QDebug>
 
 void CliHandler::run() {
 	std::string input;
+	qDebug() << "Waiting for input...";
 	while (!stopCli) {
-		//qDebug() << "Waiting for input...";
 		std::getline(std::cin, input);
-		if (input == "generate") {
-			QString temp = QString::fromStdString(input);
+		QString temp = QString::fromStdString(input);
+		if (temp.contains("generate")) {
 			temp.remove(0, 9);
-			emit generateSerial_signal(QString::fromStdString(input));
+			qInfo() << "Generating serial... from" << temp;
+			qInfo() << __FUNCTION__ << __LINE__ << __FILE__ << temp.toInt();
+			emit generateSerial_signal(QString(temp.toInt()));
 		}
 
-		if (input == "exit") {
+		if (temp.contains("exit")) {
 			stopCli = true;
 			emit stopApp_signal();
 		}

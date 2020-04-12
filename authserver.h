@@ -10,6 +10,7 @@ class AuthServer : public QThread {
 Q_OBJECT
 
 public:
+	AuthServer();
 	~AuthServer() override;
 
 private:
@@ -18,7 +19,7 @@ private:
 	bool checkSerialNumber(const QString &hash);
 
 public slots:
-	void init_slot(const int port);
+	void init_slot(const int port = 8088);
 
 	void listening_slot();
 
@@ -29,7 +30,7 @@ public slots:
 signals:
 	void generateSerialNumber_signal(const QString &data);
 
-	void initServer_signal(const int port);
+	void initServer_signal(const int port = 8088);
 
 	void initSuccess_signal(bool isGood);
 
