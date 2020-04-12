@@ -33,7 +33,7 @@ private:
 private slots:
 	void stopApp_slot();
 
-	void handleGenerating_slot(const QString &data);
+
 signals:
 
 	void startServer_signal(int port);

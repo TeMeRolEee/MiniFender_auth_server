@@ -24,10 +24,10 @@ void AuthServer::init_slot(const int port) {
 		ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
 	}
 
-	connect(server, &QLocalServer::newConnection, this, &AuthServer::listening_slot);
-	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot);
-	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot);
-	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot);
+	connect(server, &QLocalServer::newConnection, this, &AuthServer::listening_slot, Qt::QueuedConnection);
+	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::QueuedConnection);
+	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
+	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::finished, this, &AuthServer::deleteLater);
 }
 
@@ -52,7 +52,7 @@ void AuthServer::listening_slot() {
 bool AuthServer::checkSerialNumber(const QString &hash) {
 	for (int i = 0; i < 102400; ++i) {
 		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
-		QString serial = QString("acceptable_serial_") + i;
+		QString serial = QString("acceptable_serial_") + QString(i);
 		tempHash.addData(serial.toUtf8());
 		if (tempHash.result().toHex() == hash) {
 			return true;

@@ -2,6 +2,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QCommandLineParser>
+#include <QDebug>
 
 #include "core.h"
 
@@ -18,6 +19,13 @@ int main(int argc, char *argv[]) {
 	QString rootDir = QCoreApplication::applicationDirPath();
 
 	auto core = std::make_unique<Core>(rootDir);
+
+	if (!core->init(rootDir)) {
+		qDebug() << "SHIT HAPPENED";
+		core->quit();
+		core->exit();
+		QCoreApplication::exit(1);
+	}
 
 	return QCoreApplication::exec();
 }

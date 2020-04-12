@@ -9,7 +9,13 @@ void CliHandler::run() {
 		//qDebug() << "Waiting for input...";
 		std::getline(std::cin, input);
 		if (input == "generate") {
+			QString temp = QString::fromStdString(input);
+			temp.remove(0, 9);
 			emit generateSerial_signal(QString::fromStdString(input));
+		}
+
+		if (input == "exit") {
+			emit stopApp_signal();
 		}
 
 	}
