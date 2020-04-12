@@ -5,6 +5,7 @@
 
 AuthServer::AuthServer() {
 	server = new QLocalServer();
+	server->listen("auth");
 }
 
 AuthServer::~AuthServer() {
@@ -43,23 +44,33 @@ void AuthServer:: init_slot(const int port) {
 
 void AuthServer::listening_slot() {
 	QByteArray block;
-	QDataStream out(&block, QIODevice::WriteOnly);
+	QDataStream out(&block, QIODevice::ReadWrite);
 	out.setVersion(QDataStream::Qt_5_12);
-	QLocalSocket *connection = server->nextPendingConnection();
-	connect(connection, &QLocalSocket::disconnected, connection, &QLocalSocket::deleteLater);
-
-	if (checkSerialNumber(QString(connection->readAll()))) {
-		connection->write("OK");
-	} else {
-		connection->write("NOT OK");
+	QLocalSocket *connection = nullptr;
+	if (server->waitForNewConnection()) {
+		if (server->hasPendingConnections()) {
+			connection = server->nextPendingConnection();
+			connect(connection, &QLocalSocket::disconnected, connection, &QLocalSocket::deleteLater);
+		}
 	}
 
+	qDebug() << "Connection status:" << connection->isOpen();
+	connection->waitForBytesWritten();
+
+	if (checkSerialNumber(QString(connection->readAll()))) {
+		out << "OK";
+	} else {
+		out << "NOT OK";
+	}
+
+	connection->write(block);
 	connection->flush();
 	connection->waitForBytesWritten(3000);
 	connection->close();
 }
 
 bool AuthServer::checkSerialNumber(const QString &hash) {
+	qDebug() << "HASH? ->" << hash;
 	for (int i = 0; i < 102400; ++i) {
 		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 		QString serial = QString("acceptable_serial_") + QString(i);
@@ -76,7 +87,7 @@ void AuthServer::generateSerialNumber_slot(const QString &data) {
 	QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 	QString serial = QString("acceptable_serial_") + data;
 	tempHash.addData(serial.toUtf8());
-	qInfo() << "Serial generated:" << endl << QString(tempHash.result().toHex()).toUtf8();
+	qDebug() << "Serial generated:" << endl << QString(tempHash.result().toHex()).toUtf8();
 }
 
 void AuthServer::stopListening_slot() {
