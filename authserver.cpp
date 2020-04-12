@@ -28,7 +28,6 @@ void AuthServer::init_slot(const int port) {
 	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
-	connect(this, &AuthServer::finished, this, &AuthServer::deleteLater);
 }
 
 void AuthServer::listening_slot() {
@@ -74,8 +73,10 @@ void AuthServer::stopListening_slot() {
 }
 
 AuthServer::~AuthServer() {
-	if (server->isListening()) {
-		emit stopListening_signal();
+	if (server != nullptr) {
+		if (server->isListening()) {
+			emit stopListening_signal();
+		}
+		delete server;
 	}
-	delete server;
 }

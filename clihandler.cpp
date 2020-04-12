@@ -15,6 +15,7 @@ void CliHandler::run() {
 		}
 
 		if (input == "exit") {
+			stopCli = true;
 			emit stopApp_signal();
 		}
 

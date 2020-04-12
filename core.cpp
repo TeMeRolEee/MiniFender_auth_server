@@ -8,13 +8,13 @@ Core::Core(const QString &rootDir) {
 }
 
 Core::~Core() {
-	delete settings;
-	delete authServer;
-	delete cliHandler;
-}
+	cliHandler->quit();
+	cliHandler->wait();
 
-void Core::run() {
-	QThread::run();
+	authServer->quit();
+	authServer->wait();
+
+	delete settings;
 }
 
 bool Core::readSettings() {
@@ -35,6 +35,7 @@ bool Core::readSettings() {
 
 bool Core::init(const QString &settingsFilePath) {
 	if (settingsFilePath.isEmpty()) {
+		qDebug() << "SHIT";
 		return false;
 	}
 
@@ -44,10 +45,13 @@ bool Core::init(const QString &settingsFilePath) {
 
 	rootDir = settingsFilePath;
 
+	authServer->start();
+	cliHandler->start();
+
 	connect(cliHandler, &CliHandler::generateSerial_signal, this, &Core::generateSerial_signal, Qt::QueuedConnection);
 	connect(cliHandler, &CliHandler::stopApp_signal, this, &Core::stopApp_slot, Qt::QueuedConnection);
 	connect(cliHandler, &CliHandler::finished, this, &CliHandler::deleteLater, Qt::QueuedConnection);
-	connect(this, &Core::finished, this, &Core::deleteLater);
+	connect(this, &Core::finished, this, &Core::deleteLater, Qt::QueuedConnection);
 	connect(this, &Core::generateSerial_signal, authServer, &AuthServer::generateSerialNumber_signal, Qt::QueuedConnection);
 	connect(this, &Core::startServer_signal, authServer, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(authServer, &AuthServer::finished, authServer, &AuthServer::deleteLater);
@@ -55,9 +59,6 @@ bool Core::init(const QString &settingsFilePath) {
 	if (!readSettings()) {
 		return false;
 	}
-
-	authServer->start();
-	cliHandler->start();
 
 	return true;
 }

@@ -11,13 +11,10 @@ class Core : public QThread {
 Q_OBJECT
 
 public:
-	Core(const QString &rootDir);
+	explicit Core(const QString &rootDir);
 	~Core() override;
 
 	bool init(const QString &settingsFilePath);
-
-protected:
-	void run() override;
 
 private:
 	bool readSettings();

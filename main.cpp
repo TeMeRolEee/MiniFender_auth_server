@@ -20,10 +20,12 @@ int main(int argc, char *argv[]) {
 
 	auto core = std::make_unique<Core>(rootDir);
 
+	core->start();
+
 	if (!core->init(rootDir)) {
 		qDebug() << "SHIT HAPPENED";
 		core->quit();
-		core->exit();
+		core->wait();
 		QCoreApplication::exit(1);
 	}
 
