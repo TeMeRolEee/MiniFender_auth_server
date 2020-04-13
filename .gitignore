@@ -1,0 +1,8 @@
+cmake-build-*/**
+.idea/
+*.o
+*.pro
+*.pro.user
+.qmake.stash
+Makefile
+*.debug
