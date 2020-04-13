@@ -1,15 +1,17 @@
 #include <QtCore/QDataStream>
-#include <QtNetwork/QLocalSocket>
+#include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QNetworkProxy>
 
 #include "authserver.h"
 
 AuthServer::AuthServer() {
-	server = new QLocalServer();
-	server->listen("auth");
+
+	//
+
 }
 
 AuthServer::~AuthServer() {
-	qDebug() << (server == nullptr);
+	//qDebug() << (server == nullptr);
 	if (server->isListening()) {
 		emit stopListening_signal();
 	}
@@ -17,10 +19,20 @@ AuthServer::~AuthServer() {
 }
 
 void AuthServer:: init_slot(const int port) {
-	if (!server->isListening() && !server->listen("auth")) {
+	server = new QTcpServer();
+	server->setMaxPendingConnections(10);
+	server->setProxy(QNetworkProxy::NoProxy);
+	QHostAddress hostAddress;
+	hostAddress.setAddress("0.0.0.0");
+	hostAddress.toIPv4Address();
+	server->listen(hostAddress, 50137);
+	if (!server->isListening()) {
 		qCritical() << "Unable to start server";
+		qDebug() << server->errorString();
 		emit initSuccess_signal(false);
 		return;
+	} else {
+		qDebug() << "server is listening on port:" << server->serverPort();
 	}
 
 	QString ipAddress;
@@ -36,37 +48,39 @@ void AuthServer:: init_slot(const int port) {
 		ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
 	}
 
-	connect(server, &QLocalServer::newConnection, this, &AuthServer::listening_slot, Qt::QueuedConnection);
+	connect(server, &QTcpServer::newConnection, this, &AuthServer::listening_slot, Qt::UniqueConnection);
 	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::UniqueConnection);
 	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
 }
 
 void AuthServer::listening_slot() {
-	QByteArray block;
-	QDataStream out(&block, QIODevice::ReadWrite);
-	out.setVersion(QDataStream::Qt_5_12);
-	QLocalSocket *connection = nullptr;
-	if (server->waitForNewConnection()) {
-		if (server->hasPendingConnections()) {
-			connection = server->nextPendingConnection();
-			connect(connection, &QLocalSocket::disconnected, connection, &QLocalSocket::deleteLater);
+	if (server->hasPendingConnections()) {
+		QByteArray block;
+		QDataStream out(&block, QIODevice::ReadWrite);
+		out.setVersion(QDataStream::Qt_DefaultCompiledVersion);
+		QTcpSocket *socket = server->nextPendingConnection();
+
+		if (socket != nullptr) {
+			socket->waitForReadyRead();
+			out << socket->readAll();
+			QByteArray response;
+			QDataStream out2(&response, QIODevice::ReadWrite);
+
+			if (checkSerialNumber(QString(QByteArray::fromBase64(block)))) {
+				out2 << QString(QByteArray(QString("ACCEPTED").toUtf8()).toBase64());
+			} else {
+				out2 << QByteArray(QString("DECLINED").toUtf8()).toBase64();
+			}
+
+			socket->write(response);
+			socket->waitForBytesWritten();
+			socket->flush();
+			socket->close();
+		} else {
+			qCritical() << "socket is bad";
 		}
 	}
-
-	qDebug() << "Connection status:" << connection->isOpen();
-	connection->waitForBytesWritten();
-
-	if (checkSerialNumber(QString(connection->readAll()))) {
-		out << "OK";
-	} else {
-		out << "NOT OK";
-	}
-
-	connection->write(block);
-	connection->flush();
-	connection->waitForBytesWritten(3000);
-	connection->close();
 }
 
 bool AuthServer::checkSerialNumber(const QString &hash) {

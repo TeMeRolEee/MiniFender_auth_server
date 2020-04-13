@@ -3,7 +3,7 @@
 #include <QtCore/QThread>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QNetworkSession>
-#include <QtNetwork/QLocalServer>
+#include <QtNetwork/QTcpServer>
 #include <QtCore/QCryptographicHash>
 
 class AuthServer : public QThread {
@@ -14,7 +14,7 @@ public:
 	~AuthServer() override;
 
 private:
-	QLocalServer *server = nullptr;
+	QTcpServer *server = nullptr;
 
 	bool checkSerialNumber(const QString &hash);
 

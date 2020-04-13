@@ -38,7 +38,6 @@ bool Core::readSettings() {
 bool Core::init(const QString &settingsFilePath) {
 	connect(this, &Core::finished, this, &Core::deleteLater);
 	if (settingsFilePath.isEmpty()) {
-		qDebug() << "SHIT";
 		return false;
 	}
 
@@ -54,9 +53,8 @@ bool Core::init(const QString &settingsFilePath) {
 	connect(cliHandler, &CliHandler::generateSerial_signal, authServer, &AuthServer::generateSerialNumber_signal, Qt::UniqueConnection);
 	connect(cliHandler, &CliHandler::stopApp_signal, this, &Core::stopApp_slot, Qt::QueuedConnection);
 	connect(cliHandler, &CliHandler::finished, this, &CliHandler::deleteLater, Qt::QueuedConnection);
-	connect(this, &Core::startServer_signal, authServer, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(authServer, &AuthServer::finished, authServer, &AuthServer::deleteLater);
-	connect(this, &Core::startServer_signal, authServer, &AuthServer::init_slot);
+	connect(this, &Core::startServer_signal, authServer, &AuthServer::init_slot, Qt::UniqueConnection);
 
 	if (!readSettings()) {
 		return false;
