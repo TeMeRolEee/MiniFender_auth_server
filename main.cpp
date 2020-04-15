@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
 	auto isInited = new bool();
 	*isInited = false;
-	
+
 	if (!core->init(rootDir, isInited)) {
 		qCritical() << "[MAIN]\t" << "Unable to initialize. Shutting down.";
 		core->quit();
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 		if (*isInited) {
 			break;
 		} else {
-			std::this_thread::sleep_for(std::chrono_literals::operator""ms(250));
+			std::this_thread::sleep_for(std::chrono_literals::operator ""ms(250));
 		}
 	}
 
