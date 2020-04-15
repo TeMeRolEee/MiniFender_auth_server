@@ -5,13 +5,9 @@
 #include "authserver.h"
 
 AuthServer::AuthServer() {
-
-	//
-
 }
 
 AuthServer::~AuthServer() {
-	//qDebug() << (server == nullptr);
 	if (server->isListening()) {
 		emit stopListening_signal();
 	}
@@ -22,17 +18,19 @@ void AuthServer:: init_slot(const int port) {
 	server = new QTcpServer();
 	server->setMaxPendingConnections(10);
 	server->setProxy(QNetworkProxy::NoProxy);
+
 	QHostAddress hostAddress;
 	hostAddress.setAddress("0.0.0.0");
 	hostAddress.toIPv4Address();
-	server->listen(hostAddress, 50137);
+	server->listen(hostAddress, port);
+
 	if (!server->isListening()) {
 		qCritical() << "Unable to start server";
-		qDebug() << server->errorString();
+		qCritical() << server->errorString();
 		emit initSuccess_signal(false);
 		return;
 	} else {
-		qDebug() << "server is listening on port:" << server->serverPort();
+		qInfo() << "server is listening on port:" << server->serverPort();
 	}
 
 	QString ipAddress;
@@ -52,6 +50,7 @@ void AuthServer:: init_slot(const int port) {
 	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::UniqueConnection);
 	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
+	emit initSuccess_signal(true);
 }
 
 void AuthServer::listening_slot() {
@@ -84,8 +83,7 @@ void AuthServer::listening_slot() {
 }
 
 bool AuthServer::checkSerialNumber(const QString &hash) {
-	qDebug() << "HASH? ->" << hash;
-	for (int i = 0; i < 102400; ++i) {
+	for (int i = 0; i < 2147483647; ++i) {
 		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 		QString serial = QString("acceptable_serial_") + QString(i);
 		tempHash.addData(serial.toUtf8());
@@ -101,7 +99,7 @@ void AuthServer::generateSerialNumber_slot(const QString &data) {
 	QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 	QString serial = QString("acceptable_serial_") + data;
 	tempHash.addData(serial.toUtf8());
-	qDebug() << "Serial generated:" << endl << QString(tempHash.result().toHex()).toUtf8();
+	qInfo() << "Serial generated:" << endl << QString(tempHash.result().toHex()).toUtf8();
 }
 
 void AuthServer::stopListening_slot() {

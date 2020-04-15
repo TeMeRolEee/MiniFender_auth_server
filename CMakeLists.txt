@@ -7,7 +7,7 @@ set(CMAKE_AUTOUIC)
 set(CMAKE_AUTORCC)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-configure_file(settings.ini settings/settings.ini COPYONLY)
+configure_file(auth_settings.ini settings/auth_settings.ini COPYONLY)
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
