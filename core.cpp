@@ -33,7 +33,8 @@ bool Core::readSettings() {
 	}
 
 	settings->beginGroup("Port");
-	return (settings->childKeys().contains("port") && (settings->value("port").toInt() < 65535 && settings->value("port").toInt() > 0));
+	return (settings->childKeys().contains("port") &&
+			(settings->value("port").toInt() < 65535 && settings->value("port").toInt() > 0));
 }
 
 bool Core::init(const QString &settingsFilePath, bool *isInited) {
@@ -53,7 +54,7 @@ bool Core::init(const QString &settingsFilePath, bool *isInited) {
 	authServer->start();
 	cliHandler->start();
 
-	connect(cliHandler, &CliHandler::generateSerial_signal, authServer, &AuthServer::generateSerialNumber_signal, Qt::UniqueConnection);
+	connect(cliHandler, &CliHandler::generateSerial_signal, authServer, &AuthServer::generateSerialNumber_signal,Qt::UniqueConnection);
 	connect(cliHandler, &CliHandler::stopApp_signal, this, &Core::stopApp_slot, Qt::QueuedConnection);
 	connect(cliHandler, &CliHandler::finished, this, &CliHandler::deleteLater, Qt::QueuedConnection);
 	connect(authServer, &AuthServer::finished, authServer, &AuthServer::deleteLater);

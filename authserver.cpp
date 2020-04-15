@@ -14,7 +14,7 @@ AuthServer::~AuthServer() {
 	delete server;
 }
 
-void AuthServer:: init_slot(const int port) {
+void AuthServer::init_slot(const int port) {
 	server = new QTcpServer();
 	server->setMaxPendingConnections(10);
 	server->setProxy(QNetworkProxy::NoProxy);
@@ -35,7 +35,7 @@ void AuthServer:: init_slot(const int port) {
 
 	QString ipAddress;
 	QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-	for (const auto & address : ipAddressesList) {
+	for (const auto &address : ipAddressesList) {
 		if (address != QHostAddress::LocalHost && address.toIPv4Address()) {
 			ipAddress = address.toString();
 			break;
@@ -47,7 +47,7 @@ void AuthServer:: init_slot(const int port) {
 	}
 
 	connect(server, &QTcpServer::newConnection, this, &AuthServer::listening_slot, Qt::UniqueConnection);
-	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot, Qt::UniqueConnection);
+	connect(this, &AuthServer::generateSerialNumber_signal, this, &AuthServer::generateSerialNumber_slot,Qt::UniqueConnection);
 	connect(this, &AuthServer::initServer_signal, this, &AuthServer::init_slot, Qt::QueuedConnection);
 	connect(this, &AuthServer::stopListening_signal, this, &AuthServer::stopListening_slot, Qt::QueuedConnection);
 	emit initSuccess_signal(true);

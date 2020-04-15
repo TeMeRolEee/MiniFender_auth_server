@@ -12,6 +12,7 @@ Q_OBJECT
 
 public:
 	explicit Core(const QString &rootDir);
+
 	~Core() override;
 
 	bool init(const QString &settingsFilePath, bool *isInited);
@@ -30,6 +31,7 @@ private:
 	AuthServer *authServer;
 
 private slots:
+
 	void stopApp_slot();
 
 	void isInited_slot(bool isGood);

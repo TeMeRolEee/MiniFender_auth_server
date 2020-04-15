@@ -11,6 +11,7 @@ Q_OBJECT
 
 public:
 	AuthServer();
+
 	~AuthServer() override;
 
 private:
@@ -19,6 +20,7 @@ private:
 	bool checkSerialNumber(const QString &hash);
 
 public slots:
+
 	void init_slot(const int port = 8088);
 
 	void listening_slot();
@@ -28,6 +30,7 @@ public slots:
 	void generateSerialNumber_slot(const QString &data);
 
 signals:
+
 	void generateSerialNumber_signal(const QString &data);
 
 	void initServer_signal(const int port = 8088);
