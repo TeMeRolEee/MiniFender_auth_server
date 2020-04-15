@@ -17,14 +17,15 @@ Core::~Core() {
 	delete settings;
 	delete cliHandler;
 	delete authServer;
+	delete isInited;
 }
 
 bool Core::readSettings() {
-	if (!QFile(rootDir + "/settings/settings.ini").exists()) {
+	if (!QFile(rootDir + "/settings/auth_settings.ini").exists()) {
 		return false;
 	}
 
-	settings = new QSettings(rootDir + "/settings/settings.ini", QSettings::IniFormat);
+	settings = new QSettings(rootDir + "/settings/auth_settings.ini", QSettings::IniFormat);
 	QStringList keys = settings->childGroups();
 
 	if (!keys.contains("Port") && !keys.contains("Database")) {
@@ -35,7 +36,9 @@ bool Core::readSettings() {
 	return (settings->childKeys().contains("port") && (settings->value("port").toInt() < 65535 && settings->value("port").toInt() > 0));
 }
 
-bool Core::init(const QString &settingsFilePath) {
+bool Core::init(const QString &settingsFilePath, bool *isInited) {
+	this->isInited = isInited;
+
 	connect(this, &Core::finished, this, &Core::deleteLater);
 	if (settingsFilePath.isEmpty()) {
 		return false;
@@ -55,6 +58,7 @@ bool Core::init(const QString &settingsFilePath) {
 	connect(cliHandler, &CliHandler::finished, this, &CliHandler::deleteLater, Qt::QueuedConnection);
 	connect(authServer, &AuthServer::finished, authServer, &AuthServer::deleteLater);
 	connect(this, &Core::startServer_signal, authServer, &AuthServer::init_slot, Qt::UniqueConnection);
+	connect(authServer, &AuthServer::initSuccess_signal, this, &Core::isInited_slot, Qt::UniqueConnection);
 
 	if (!readSettings()) {
 		return false;
@@ -70,4 +74,8 @@ void Core::stopApp_slot() {
 	this->wait();
 
 	QCoreApplication::exit(0);
+}
+
+void Core::isInited_slot(bool isGood) {
+	*isInited = isGood;
 }
