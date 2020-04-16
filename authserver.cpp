@@ -83,7 +83,7 @@ void AuthServer::listening_slot() {
 }
 
 bool AuthServer::checkSerialNumber(const QString &hash) {
-	for (int i = 0; i < 2147483647; ++i) {
+	for (int i = 0; i <= 128000; ++i) {
 		QCryptographicHash tempHash(QCryptographicHash::RealSha3_512);
 		QString serial = QString("acceptable_serial_") + QString(i);
 		tempHash.addData(serial.toUtf8());
