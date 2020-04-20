@@ -28,7 +28,7 @@ bool Core::readSettings() {
 	settings = new QSettings(rootDir + "/settings/auth_settings.ini", QSettings::IniFormat);
 	QStringList keys = settings->childGroups();
 
-	if (!keys.contains("Port") && !keys.contains("Database")) {
+	if (!keys.contains("Port")) {
 		return false;
 	}
 
@@ -65,7 +65,7 @@ bool Core::init(const QString &settingsFilePath, bool *isInited) {
 		return false;
 	}
 
-	emit startServer_signal();
+	emit startServer_signal(settings->value("port").toInt());
 
 	return true;
 }
